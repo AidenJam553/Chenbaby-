@@ -7,6 +7,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-k
 // 检查环境变量是否配置
 const isConfigured = supabaseUrl !== 'https://placeholder.supabase.co' && supabaseAnonKey !== 'placeholder-key'
 
+// 添加调试信息
+console.log('Supabase 配置信息:')
+console.log('URL:', supabaseUrl)
+console.log('Key 长度:', supabaseAnonKey.length)
+console.log('是否已配置:', isConfigured)
+
 export const supabase = isConfigured ? createClient(supabaseUrl, supabaseAnonKey) : null
 
 // 数据库表名
@@ -69,18 +75,25 @@ export const messageAPI = {
   // 获取所有消息
   async getMessages() {
     if (!isConfigured) {
+      console.log('使用模拟数据：获取留言')
       // 模拟网络延迟
       await new Promise(resolve => setTimeout(resolve, 500))
       return mockMessages
     }
     
     try {
+      console.log('尝试从 Supabase 获取留言...')
       const { data, error } = await supabase
         .from(TABLES.MESSAGES)
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 获取留言错误:', error)
+        throw error
+      }
+      
+      console.log('成功从 Supabase 获取留言:', data)
       return data
     } catch (error) {
       console.error('获取留言失败:', error)
@@ -91,6 +104,7 @@ export const messageAPI = {
   // 添加新消息
   async addMessage(name, text) {
     if (!isConfigured) {
+      console.log('使用模拟数据：添加留言')
       const newMessage = {
         id: Date.now(),
         name,
@@ -103,12 +117,18 @@ export const messageAPI = {
     }
 
     try {
+      console.log('尝试添加留言到 Supabase...')
       const { data, error } = await supabase
         .from(TABLES.MESSAGES)
         .insert([{ name, text }])
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 添加留言错误:', error)
+        throw error
+      }
+      
+      console.log('成功添加留言到 Supabase:', data[0])
       return data[0]
     } catch (error) {
       console.error('添加留言失败:', error)
@@ -119,6 +139,7 @@ export const messageAPI = {
   // 点赞消息
   async likeMessage(id) {
     if (!isConfigured) {
+      console.log('使用模拟数据：点赞留言')
       const message = mockMessages.find(m => m.id === id)
       if (message) {
         message.likes = (message.likes || 0) + 1
@@ -127,13 +148,19 @@ export const messageAPI = {
     }
 
     try {
+      console.log('尝试在 Supabase 中点赞留言...')
       const { data, error } = await supabase
         .from(TABLES.MESSAGES)
         .update({ likes: supabase.sql`likes + 1` })
         .eq('id', id)
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 点赞错误:', error)
+        throw error
+      }
+      
+      console.log('成功在 Supabase 中点赞留言:', data[0])
       return data[0]
     } catch (error) {
       console.error('点赞失败:', error)
@@ -147,17 +174,24 @@ export const photoAPI = {
   // 获取所有照片
   async getPhotos() {
     if (!isConfigured) {
+      console.log('使用模拟数据：获取照片')
       await new Promise(resolve => setTimeout(resolve, 500))
       return mockPhotos
     }
 
     try {
+      console.log('尝试从 Supabase 获取照片...')
       const { data, error } = await supabase
         .from(TABLES.PHOTOS)
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 获取照片错误:', error)
+        throw error
+      }
+      
+      console.log('成功从 Supabase 获取照片:', data)
       return data
     } catch (error) {
       console.error('获取照片失败:', error)
@@ -168,6 +202,7 @@ export const photoAPI = {
   // 添加新照片
   async addPhoto(url, tag = '') {
     if (!isConfigured) {
+      console.log('使用模拟数据：添加照片')
       const newPhoto = {
         id: Date.now(),
         url,
@@ -179,12 +214,18 @@ export const photoAPI = {
     }
 
     try {
+      console.log('尝试添加照片到 Supabase...')
       const { data, error } = await supabase
         .from(TABLES.PHOTOS)
         .insert([{ url, tag }])
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 添加照片错误:', error)
+        throw error
+      }
+      
+      console.log('成功添加照片到 Supabase:', data[0])
       return data[0]
     } catch (error) {
       console.error('添加照片失败:', error)
@@ -199,11 +240,17 @@ export const photoAPI = {
     }
 
     try {
+      console.log('尝试上传文件到 Supabase Storage...')
       const { data, error } = await supabase.storage
         .from('photos')
         .upload(path, file)
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 文件上传错误:', error)
+        throw error
+      }
+      
+      console.log('成功上传文件到 Supabase Storage:', data)
       return data
     } catch (error) {
       console.error('上传文件失败:', error)
@@ -230,17 +277,24 @@ export const qaAPI = {
   // 获取所有问答对
   async getQAPairs() {
     if (!isConfigured) {
+      console.log('使用模拟数据：获取问答')
       await new Promise(resolve => setTimeout(resolve, 500))
       return mockQAPairs
     }
 
     try {
+      console.log('尝试从 Supabase 获取问答...')
       const { data, error } = await supabase
         .from(TABLES.QA_PAIRS)
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 获取问答错误:', error)
+        throw error
+      }
+      
+      console.log('成功从 Supabase 获取问答:', data)
       return data
     } catch (error) {
       console.error('获取问答失败:', error)
@@ -251,6 +305,7 @@ export const qaAPI = {
   // 添加新问答对
   async addQAPair(question, answer) {
     if (!isConfigured) {
+      console.log('使用模拟数据：添加问答')
       const newQA = {
         id: Date.now(),
         q: question,
@@ -262,12 +317,18 @@ export const qaAPI = {
     }
 
     try {
+      console.log('尝试添加问答到 Supabase...')
       const { data, error } = await supabase
         .from(TABLES.QA_PAIRS)
         .insert([{ q: question, a: answer }])
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 添加问答错误:', error)
+        throw error
+      }
+      
+      console.log('成功添加问答到 Supabase:', data[0])
       return data[0]
     } catch (error) {
       console.error('添加问答失败:', error)
@@ -278,6 +339,7 @@ export const qaAPI = {
   // 搜索答案
   async searchAnswer(question) {
     if (!isConfigured) {
+      console.log('使用模拟数据：搜索答案')
       const lowerQuestion = question.toLowerCase()
       const match = mockQAPairs.find(qa => 
         qa.q.toLowerCase().includes(lowerQuestion) ||
@@ -287,11 +349,15 @@ export const qaAPI = {
     }
 
     try {
+      console.log('尝试在 Supabase 中搜索答案...')
       const { data, error } = await supabase
         .from(TABLES.QA_PAIRS)
         .select('*')
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase 搜索错误:', error)
+        throw error
+      }
       
       // 简单的关键词匹配
       const lowerQuestion = question.toLowerCase()
@@ -300,6 +366,7 @@ export const qaAPI = {
         lowerQuestion.includes(qa.q.toLowerCase())
       )
       
+      console.log('搜索完成，找到匹配:', match)
       return match ? match.a : null
     } catch (error) {
       console.error('搜索失败:', error)
