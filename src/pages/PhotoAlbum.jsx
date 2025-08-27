@@ -65,6 +65,29 @@ const PhotoAlbum = () => {
 
     try {
       setUploading(true)
+      
+      // 检查 Supabase 是否配置
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      const isConfigured = supabaseUrl && supabaseKey && 
+        supabaseUrl !== 'https://your-project-id.supabase.co' && 
+        supabaseKey !== 'your-anon-key-here'
+
+      if (!isConfigured) {
+        // 如果 Supabase 未配置，使用本地预览
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+          const dataUrl = e.target.result
+          await photoAPI.addPhoto(dataUrl, formData.tag.trim())
+          setFormData({ url: '', tag: '' })
+          setShowUploadModal(false)
+          fetchPhotos()
+        }
+        reader.readAsDataURL(file)
+        return
+      }
+
+      // Supabase 已配置，正常上传
       const fileName = `${Date.now()}-${file.name}`
       await photoAPI.uploadFile(file, fileName)
       const publicUrl = photoAPI.getPublicUrl(fileName)
@@ -74,7 +97,7 @@ const PhotoAlbum = () => {
       fetchPhotos()
     } catch (error) {
       console.error('上传失败:', error)
-      alert('上传失败，请重试')
+      alert('上传失败，请重试。如果问题持续，请使用图片链接方式。')
     } finally {
       setUploading(false)
     }
