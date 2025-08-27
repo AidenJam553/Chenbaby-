@@ -19,7 +19,8 @@ export const supabase = isConfigured ? createClient(supabaseUrl, supabaseAnonKey
 export const TABLES = {
   MESSAGES: 'messages',
   PHOTOS: 'photos',
-  QA_PAIRS: 'qa_pairs'
+  QA_PAIRS: 'qa_pairs',
+  GAME_RECORDS: 'game_records'
 }
 
 // 模拟数据（当 Supabase 未配置时使用）
@@ -67,6 +68,25 @@ const mockQAPairs = [
     q: '今天心情怎么样？',
     a: '今天心情很好，因为有你在身边！',
     created_at: new Date(Date.now() - 86400000).toISOString()
+  }
+]
+
+const mockGameRecords = [
+  {
+    id: 1,
+    player_name: '琛宝',
+    moves: 18,
+    time_seconds: 45,
+    stars: 2,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 2,
+    player_name: '涵宝',
+    moves: 14,
+    time_seconds: 38,
+    stars: 3,
+    created_at: new Date(Date.now() - 3600000).toISOString()
   }
 ]
 
@@ -370,6 +390,116 @@ export const qaAPI = {
       return match ? match.a : null
     } catch (error) {
       console.error('搜索失败:', error)
+      return null
+    }
+  }
+}
+
+// 游戏记录相关操作
+export const gameAPI = {
+  // 获取所有游戏记录
+  async getGameRecords() {
+    if (!isConfigured) {
+      console.log('使用模拟数据：获取游戏记录')
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return mockGameRecords
+    }
+
+    try {
+      console.log('尝试从 Supabase 获取游戏记录...')
+      const { data, error } = await supabase
+        .from(TABLES.GAME_RECORDS)
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Supabase 获取游戏记录错误:', error)
+        throw error
+      }
+      
+      console.log('成功从 Supabase 获取游戏记录:', data)
+      return data
+    } catch (error) {
+      console.error('获取游戏记录失败:', error)
+      return mockGameRecords
+    }
+  },
+
+  // 保存游戏记录
+  async saveGameRecord(playerName, moves, timeSeconds, stars) {
+    if (!isConfigured) {
+      console.log('使用模拟数据：保存游戏记录')
+      const newRecord = {
+        id: Date.now(),
+        player_name: playerName,
+        moves,
+        time_seconds: timeSeconds,
+        stars,
+        created_at: new Date().toISOString()
+      }
+      mockGameRecords.unshift(newRecord)
+      return newRecord
+    }
+
+    try {
+      console.log('尝试保存游戏记录到 Supabase...')
+      const { data, error } = await supabase
+        .from(TABLES.GAME_RECORDS)
+        .insert([{ 
+          player_name: playerName, 
+          moves, 
+          time_seconds: timeSeconds, 
+          stars 
+        }])
+        .select()
+      
+      if (error) {
+        console.error('Supabase 保存游戏记录错误:', error)
+        throw error
+      }
+      
+      console.log('成功保存游戏记录到 Supabase:', data[0])
+      return data[0]
+    } catch (error) {
+      console.error('保存游戏记录失败:', error)
+      throw error
+    }
+  },
+
+  // 获取最佳成绩
+  async getBestScore(playerName) {
+    if (!isConfigured) {
+      console.log('使用模拟数据：获取最佳成绩')
+      const playerRecords = mockGameRecords.filter(record => record.player_name === playerName)
+      if (playerRecords.length === 0) return null
+      
+      return playerRecords.reduce((best, current) => {
+        if (current.moves < best.moves || (current.moves === best.moves && current.time_seconds < best.time_seconds)) {
+          return current
+        }
+        return best
+      })
+    }
+
+    try {
+      console.log('尝试从 Supabase 获取最佳成绩...')
+      const { data, error } = await supabase
+        .from(TABLES.GAME_RECORDS)
+        .select('*')
+        .eq('player_name', playerName)
+        .order('moves', { ascending: true })
+        .order('time_seconds', { ascending: true })
+        .limit(1)
+      
+      if (error) {
+        console.error('Supabase 获取最佳成绩错误:', error)
+        throw error
+      }
+      
+      console.log('成功从 Supabase 获取最佳成绩:', data[0] || null)
+      return data[0] || null
+    } catch (error) {
+      console.error('获取最佳成绩失败:', error)
       return null
     }
   }

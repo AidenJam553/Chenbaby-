@@ -84,7 +84,7 @@ const MessageBoard = () => {
           <Heart className="title-icon" />
           留言板
         </h1>
-        <p className="page-subtitle">留下你的心里话，分享美好时光 💕</p>
+        <p className="page-subtitle">宝贝，留下想说的话吧~ 💕</p>
       </motion.div>
 
       {/* 添加留言表单 */}

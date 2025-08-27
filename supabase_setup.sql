@@ -23,10 +23,21 @@ CREATE TABLE IF NOT EXISTS qa_pairs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 创建游戏记录表
+CREATE TABLE IF NOT EXISTS game_records (
+  id BIGSERIAL PRIMARY KEY,
+  player_name TEXT NOT NULL,
+  moves INTEGER NOT NULL,
+  time_seconds INTEGER NOT NULL,
+  stars INTEGER NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- 启用行级安全策略 (RLS)
 ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE qa_pairs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE game_records ENABLE ROW LEVEL SECURITY;
 
 -- 创建允许所有人读取和插入的策略
 CREATE POLICY "Allow public read access" ON photos FOR SELECT USING (true);
@@ -38,3 +49,6 @@ CREATE POLICY "Allow public update access" ON messages FOR UPDATE USING (true);
 
 CREATE POLICY "Allow public read access" ON qa_pairs FOR SELECT USING (true);
 CREATE POLICY "Allow public insert access" ON qa_pairs FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow public read access" ON game_records FOR SELECT USING (true);
+CREATE POLICY "Allow public insert access" ON game_records FOR INSERT WITH CHECK (true);

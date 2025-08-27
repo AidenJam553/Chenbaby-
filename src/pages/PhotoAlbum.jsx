@@ -57,9 +57,9 @@ const PhotoAlbum = () => {
       return
     }
 
-    // 检查文件大小 (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('图片大小不能超过5MB')
+    // 检查文件大小 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('图片大小不能超过10MB')
       return
     }
 
@@ -125,7 +125,7 @@ const PhotoAlbum = () => {
           <Image className="title-icon" />
           相册
         </h1>
-        <p className="page-subtitle">记录我们的每一个精彩瞬间 📸</p>
+        <p className="page-subtitle">咔嚓咔嚓，我们的照片放上来！ 📸</p>
       </motion.div>
 
       {/* 添加照片按钮 */}

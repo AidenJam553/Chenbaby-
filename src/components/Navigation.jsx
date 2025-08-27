@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Heart, MessageCircle, Image, HelpCircle, Home } from 'lucide-react'
+import { Heart, MessageCircle, Image, HelpCircle, Home, Gamepad2 } from 'lucide-react'
 import './Navigation.css'
 
 const Navigation = () => {
@@ -8,7 +8,8 @@ const Navigation = () => {
     { path: '/', label: '首页', icon: Home },
     { path: '/messages', label: '留言板', icon: MessageCircle },
     { path: '/photos', label: '相册', icon: Image },
-    { path: '/qa', label: '你问我答', icon: HelpCircle }
+    { path: '/qa', label: '你问我答', icon: HelpCircle },
+    { path: '/game', label: '小游戏', icon: Gamepad2 }
   ]
 
   return (

@@ -90,7 +90,7 @@ const QAndA = () => {
           <HelpCircle className="title-icon" />
           你问我答
         </h1>
-        <p className="page-subtitle">有趣的互动问答，增进了解 💭</p>
+        <p className="page-subtitle">我出题，你来答 😈💭</p>
       </motion.div>
 
       {/* 搜索区域 */}

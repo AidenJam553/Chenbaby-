@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import MessageBoard from './pages/MessageBoard'
 import PhotoAlbum from './pages/PhotoAlbum'
 import QAndA from './pages/QAndA'
+import Game from './pages/Game'
 import './styles/App.css'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
             <Route path="/messages" element={<MessageBoard />} />
             <Route path="/photos" element={<PhotoAlbum />} />
             <Route path="/qa" element={<QAndA />} />
+            <Route path="/game" element={<Game />} />
           </Routes>
         </main>
       </motion.div>

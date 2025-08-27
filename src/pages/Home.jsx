@@ -10,21 +10,21 @@ const Home = () => {
     {
       icon: MessageCircle,
       title: '留言板',
-      description: '留下你的心里话，分享美好时光',
+      description: '留下我们的心里话，有什么想对我说呢？',
       path: '/messages',
       color: '#FF6B9D'
     },
     {
       icon: Image,
       title: '相册',
-      description: '记录我们的每一个精彩瞬间',
+      description: '想上传什么照片都可以哈哈哈',
       path: '/photos',
       color: '#A8E6CF'
     },
     {
       icon: HelpCircle,
       title: '你问我答',
-      description: '有趣的互动问答，增进了解',
+      description: '有没有想问我的问题呢，这里也可以问哦',
       path: '/qa',
       color: '#FFB3D1'
     }
@@ -58,7 +58,7 @@ const Home = () => {
             <Sparkles className="sparkle-icon" />
           </h1>
           <p className="hero-subtitle">
-            这里是我们专属的小天地，记录每一个美好的瞬间 💕
+            这里是我们专属的小天地，只有我和你💕
           </p>
         </div>
       </motion.div>
@@ -114,7 +114,7 @@ const Home = () => {
             希望这里能成为我们美好回忆的见证者！
           </p>
           <p style={{ marginTop: '16px', fontSize: '14px', color: '#718096' }}>
-            💡 提示：目前使用模拟数据，配置 Supabase 后可实现真实数据存储
+            💡 提示：系统故障（骗你的），这个版本是七夕节！宝贝七夕节快乐，我们长长久久！
           </p>
         </div>
       </motion.div>
