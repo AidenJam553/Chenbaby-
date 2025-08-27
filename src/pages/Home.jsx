@@ -54,7 +54,7 @@ const Home = () => {
             <Heart className="heart-beat" />
           </motion.div>
           <h1 className="hero-title">
-            欢迎来到小琛和小涵的温馨小屋
+            欢迎来到小琛和小涵的温馨小屋，快请进吧！
             <Sparkles className="sparkle-icon" />
           </h1>
           <p className="hero-subtitle">
