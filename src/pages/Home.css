@@ -165,8 +165,9 @@
   
   .hero-title {
     font-size: 1.8rem;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
+    flex-wrap: nowrap;
   }
   
   .sparkle-icon {
