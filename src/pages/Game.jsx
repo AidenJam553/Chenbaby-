@@ -53,7 +53,7 @@ const Game = () => {
           <Gamepad2 className="title-icon" />
           小游戏中心
         </h1>
-        <p className="page-subtitle">选择你喜欢的游戏，开始愉快的游戏时光！🎮</p>
+        <p className="page-subtitle">哈哈哈哈哈哈我也不知道我为什么要整个小游戏中心！🎮</p>
       </motion.div>
 
       {/* 游戏选择网格 */}
