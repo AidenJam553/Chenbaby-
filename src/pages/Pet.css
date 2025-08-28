@@ -1,0 +1,544 @@
+.pet-container {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(180deg, #0b2e4e 0%, #1a4a73 100%);
+  position: relative;
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+.pet-container::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 140px;
+  background-color: #000000;
+}
+
+.pet-header {
+  text-align: center;
+  padding: 2rem 0;
+  position: relative;
+  z-index: 10;
+}
+
+.pet-header .pet-icon {
+  width: 48px;
+  height: 48px;
+  color: #ffffc9;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 10px #ffffc9);
+}
+
+.pet-header h1 {
+  font-size: 2.5rem;
+  color: #bdf8ff;
+  margin-bottom: 0.5rem;
+  font-family: sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0px 0px 15px #95cfef;
+  font-weight: bold;
+  animation: signboardFlashes 5s infinite alternate linear;
+}
+
+.pet-header p {
+  color: #bdf8ff;
+  font-size: 1.1rem;
+  max-width: 500px;
+  margin: 0 auto;
+  text-shadow: 0px 0px 10px #95cfef;
+}
+
+/* 月亮 */
+.moon {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 60px;
+  height: 60px;
+  background-color: #ffffc9;
+  border-radius: 50%;
+  box-shadow: 0 0 30px 3px #ffffc9;
+  animation: moonMoves 360s infinite alternate linear;
+  z-index: 5;
+}
+
+.pet-main {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  height: calc(100vh - 200px);
+  min-width: 660px;
+  min-height: 460px;
+  margin: 0 auto;
+  padding: 0 0 85px;
+  z-index: 1;
+}
+
+/* Cat Stats */
+.cat-stats {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 254, 204, 0.9);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 3px solid #333333;
+  box-shadow: 0 8px 32px rgba(245, 239, 161, 0.3);
+  min-width: 200px;
+  z-index: 15;
+}
+
+.stat-item {
+  margin-bottom: 1.5rem;
+}
+
+.stat-item:last-child {
+  margin-bottom: 0;
+}
+
+.stat-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.stat-bar {
+  height: 12px;
+  background: rgba(229, 231, 235, 0.8);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  background: linear-gradient(90deg, currentColor, rgba(255, 255, 255, 0.3));
+}
+
+.stat-value {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Cat Display */
+.cat-display {
+  position: absolute;
+  bottom: 135px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 100%;
+  height: 100px;
+}
+
+.cat {
+  position: absolute;
+  left: -300px;
+  bottom: 20px;
+  width: 92px;
+  height: 60px;
+  margin: auto;
+  background-color: #000000;
+  border-radius: 60px;
+  cursor: pointer;
+  animation: catRuns 20s infinite linear;
+}
+
+.cat:hover:not(.sleeping) {
+  animation-duration: 10s;
+  filter: brightness(1.1);
+}
+
+.cat.sleeping {
+  animation: none;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: default;
+}
+
+.cat.playing {
+  animation-duration: 5s;
+}
+
+.cat.happy {
+  animation-duration: 8s;
+}
+
+/* Cat Tail */
+.cat__tail {
+  position: absolute;
+  left: -36px;
+  top: -44px;
+  width: 60px;
+  height: 84px;
+  border-radius: 50%;
+  border: 14px solid rgba(255, 255, 255, 0);
+  border-top-color: #000000;
+  border-right-color: #000000;
+  transform-origin: right;
+  animation: catMovesTail 0.3s infinite linear;
+}
+
+/* Cat Head */
+.cat__head {
+  position: absolute;
+  right: -20px;
+  top: -16px;
+  width: 48px;
+  height: 48px;
+  background-color: inherit;
+  border-radius: 50%;
+  animation: catMovesHead 0.3s infinite linear;
+}
+
+/* Cat Ears */
+.cat__head::before,
+.cat__head::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  background-color: inherit;
+  border-radius: 4px;
+}
+
+.cat__head::before {
+  left: 4px;
+  transform: rotate(16deg);
+}
+
+.cat__head::after {
+  right: 4px;
+  transform: rotate(-16deg);
+}
+
+/* Cat Legs */
+.cat__leg {
+  position: absolute;
+  bottom: -24px;
+  width: 12px;
+  height: 40px;
+  background-color: inherit;
+  border-radius: 6px;
+  transform-origin: top;
+}
+
+.cat__leg--1,
+.cat__leg--2 {
+  left: 10px;
+}
+
+.cat__leg--3,
+.cat__leg--4 {
+  right: 10px;
+}
+
+.cat__leg--1,
+.cat__leg--3 {
+  transform: rotate(24deg);
+  animation: catMovesLegs 0.6s infinite linear;
+}
+
+.cat__leg--2,
+.cat__leg--4 {
+  transform: rotate(-24deg);
+  animation: catMovesLegs 0.6s infinite -0.3s linear;
+}
+
+/* 旧的静态猫咪样式已删除，现在使用动态CSS猫咪 */
+
+/* 动态猫咪的状态变化通过改变动画速度来实现 */
+
+/* 动画关键帧 */
+@keyframes moonMoves {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(300px, -10px);
+  }
+  100% {
+    transform: translate(600px, 0);
+  }
+}
+
+@keyframes signboardFlashes {
+  0% {
+    opacity: 1;
+  }
+  35% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 0;
+  }
+  37% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0;
+  }
+  73% {
+    opacity: 1;
+  }
+  74% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes catMovesLegs {
+  0% {
+    transform: rotate(36deg);
+  }
+  50% {
+    transform: rotate(-36deg);
+  }
+  100% {
+    transform: rotate(36deg);
+  }
+}
+
+@keyframes catMovesHead {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes catMovesTail {
+  0% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes catRuns {
+  0% {
+    transform: translateX(0) rotateY(0);
+  }
+  70% {
+    transform: translateX(900px) rotateY(0);
+  }
+  71% {
+    transform: translateX(1100px) rotateY(180deg);
+  }
+  100% {
+    transform: translateX(0) rotateY(180deg);
+  }
+}
+
+/* Cat Message */
+.cat-message {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 254, 204, 0.95);
+  padding: 0.75rem 1rem;
+  border-radius: 15px;
+  border: 2px solid #333333;
+  font-size: 0.9rem;
+  color: #374151;
+  box-shadow: 0 4px 16px rgba(245, 239, 161, 0.4);
+  white-space: nowrap;
+  z-index: 20;
+  font-weight: 600;
+}
+
+.cat-message::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: rgba(255, 254, 204, 0.95);
+}
+
+/* Action Buttons */
+.cat-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(255, 254, 204, 0.9);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 3px solid #333333;
+  box-shadow: 0 8px 32px rgba(245, 239, 161, 0.3);
+  min-width: 150px;
+  z-index: 15;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.action-button.feed {
+  border-left: 4px solid #10b981;
+}
+
+.action-button.feed:hover:not(:disabled) {
+  background: linear-gradient(145deg, #ecfdf5, #d1fae5);
+  color: #065f46;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+.action-button.play {
+  border-left: 4px solid #3b82f6;
+}
+
+.action-button.play:hover:not(:disabled) {
+  background: linear-gradient(145deg, #eff6ff, #dbeafe);
+  color: #1e40af;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+
+.action-button.rest {
+  border-left: 4px solid #8b5cf6;
+}
+
+.action-button.rest:hover:not(:disabled) {
+  background: linear-gradient(145deg, #f5f3ff, #ede9fe);
+  color: #5b21b6;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+}
+
+.action-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Cat Status */
+.cat-status {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 1rem 2rem;
+  background: rgba(255, 254, 204, 0.9);
+  border-radius: 15px;
+  border: 3px solid #333333;
+  box-shadow: 0 8px 32px rgba(245, 239, 161, 0.3);
+  z-index: 15;
+}
+
+.status-text {
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.status-text strong {
+  color: #ec4899;
+  font-weight: 700;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .pet-main {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 600px;
+  }
+
+  .cat-stats,
+  .cat-actions {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .cat-actions {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .pet-container {
+    padding: 1rem;
+  }
+
+  .pet-header h1 {
+    font-size: 2rem;
+  }
+
+  .cat-actions {
+    flex-direction: column;
+  }
+
+  .action-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pet-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .cat-stats,
+  .cat-actions {
+    padding: 1.5rem;
+  }
+
+  .cat-display {
+    padding: 1rem;
+  }
+}

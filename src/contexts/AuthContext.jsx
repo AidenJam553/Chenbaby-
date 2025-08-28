@@ -22,11 +22,11 @@ export const AuthProvider = ({ children }) => {
         const savedUser = localStorage.getItem('xiaowu_user')
         if (savedUser) {
           const userData = JSON.parse(savedUser)
-          // 验证用户数据是否有效
-          const isValid = await authAPI.validateUser(userData.username, userData.password)
-          if (isValid) {
+          // 验证用户数据结构是否完整
+          if (userData && userData.username && userData.display_name) {
             setUser(userData)
           } else {
+            console.log('用户数据格式不完整，清除localStorage')
             localStorage.removeItem('xiaowu_user')
           }
         }

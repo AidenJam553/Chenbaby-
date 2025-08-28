@@ -7,6 +7,7 @@ import MessageBoard from './pages/MessageBoard'
 import PhotoAlbum from './pages/PhotoAlbum'
 import QAndA from './pages/QAndA'
 import Game from './pages/Game'
+import Pet from './pages/Pet'
 import Login from './pages/Login'
 import Settings from './pages/Settings'
 import LoginTest from './pages/LoginTest'
@@ -66,6 +67,11 @@ const AppContent = () => {
             <Route path="/game" element={
               <ProtectedRoute>
                 <Game />
+              </ProtectedRoute>
+            } />
+            <Route path="/pet" element={
+              <ProtectedRoute>
+                <Pet />
               </ProtectedRoute>
             } />
             <Route path="/settings" element={
