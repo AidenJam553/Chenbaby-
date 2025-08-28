@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Image, Upload, Plus, X, Tag, Calendar } from 'lucide-react'
+import { Image, Upload, Plus, X, Tag, Calendar, User, Trash2 } from 'lucide-react'
 import { photoAPI } from '../utils/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import './PhotoAlbum.css'
 
 const PhotoAlbum = () => {
+  const { user } = useAuth()
   const [photos, setPhotos] = useState([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(null)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [formData, setFormData] = useState({ url: '', tag: '' })
@@ -33,9 +36,19 @@ const PhotoAlbum = () => {
       return
     }
 
+    if (!user) {
+      alert('请先登录后再上传照片')
+      return
+    }
+
     try {
       setUploading(true)
-      await photoAPI.addPhoto(formData.url.trim(), formData.tag.trim())
+      await photoAPI.addPhoto(
+        formData.url.trim(), 
+        formData.tag.trim(),
+        user.display_name || user.username,
+        user.id
+      )
       setFormData({ url: '', tag: '' })
       setShowUploadModal(false)
       fetchPhotos() // 重新获取照片列表
@@ -78,7 +91,12 @@ const PhotoAlbum = () => {
         const reader = new FileReader()
         reader.onload = async (e) => {
           const dataUrl = e.target.result
-          await photoAPI.addPhoto(dataUrl, formData.tag.trim())
+          await photoAPI.addPhoto(
+            dataUrl, 
+            formData.tag.trim(),
+            user.display_name || user.username,
+            user.id
+          )
           setFormData({ url: '', tag: '' })
           setShowUploadModal(false)
           fetchPhotos()
@@ -91,7 +109,12 @@ const PhotoAlbum = () => {
       const fileName = `${Date.now()}-${file.name}`
       await photoAPI.uploadFile(file, fileName)
       const publicUrl = photoAPI.getPublicUrl(fileName)
-      await photoAPI.addPhoto(publicUrl, formData.tag.trim())
+      await photoAPI.addPhoto(
+        publicUrl, 
+        formData.tag.trim(),
+        user.display_name || user.username,
+        user.id
+      )
       setFormData({ url: '', tag: '' })
       setShowUploadModal(false)
       fetchPhotos()
@@ -100,6 +123,34 @@ const PhotoAlbum = () => {
       alert('上传失败，请重试。如果问题持续，请使用图片链接方式。')
     } finally {
       setUploading(false)
+    }
+  }
+
+  // 删除照片
+  const handleDeletePhoto = async (photo) => {
+    if (!user) {
+      alert('请先登录')
+      return
+    }
+
+    if (photo.user_id !== user.id) {
+      alert('只能删除自己上传的照片')
+      return
+    }
+
+    if (!confirm('确定要删除这张照片吗？')) {
+      return
+    }
+
+    try {
+      setDeleting(photo.id)
+      await photoAPI.deletePhoto(photo.id, user.id)
+      fetchPhotos() // 重新获取照片列表
+    } catch (error) {
+      console.error('删除照片失败:', error)
+      alert('删除失败，请重试')
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -137,10 +188,17 @@ const PhotoAlbum = () => {
       >
         <button
           className="btn btn-primary add-photo-btn"
-          onClick={() => setShowUploadModal(true)}
+          onClick={() => {
+            if (!user) {
+              alert('请先登录后再上传照片')
+              return
+            }
+            setShowUploadModal(true)
+          }}
+          disabled={!user}
         >
           <Plus className="btn-icon" />
-          添加照片
+          {user ? '添加照片' : '请先登录'}
         </button>
       </motion.div>
 
@@ -184,6 +242,12 @@ const PhotoAlbum = () => {
                     />
                     <div className="photo-overlay">
                       <div className="photo-info">
+                        {photo.uploaded_by && (
+                          <div className="photo-uploader">
+                            <User className="uploader-icon" />
+                            <span>{photo.uploaded_by}</span>
+                          </div>
+                        )}
                         {photo.tag && (
                           <div className="photo-tag">
                             <Tag className="tag-icon" />
@@ -195,6 +259,24 @@ const PhotoAlbum = () => {
                           <span>{formatTime(photo.created_at)}</span>
                         </div>
                       </div>
+                      {user && photo.user_id === user.id && (
+                        <div className="photo-actions">
+                          <button
+                            className="delete-btn"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeletePhoto(photo)
+                            }}
+                            disabled={deleting === photo.id}
+                          >
+                            {deleting === photo.id ? (
+                              <div className="deleting-spinner"></div>
+                            ) : (
+                              <Trash2 className="delete-icon" />
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -328,15 +410,36 @@ const PhotoAlbum = () => {
                   alt={selectedPhoto.tag || '照片'}
                   className="preview-image"
                 />
-                {selectedPhoto.tag && (
-                  <div className="preview-tag">
-                    <Tag className="tag-icon" />
-                    <span>{selectedPhoto.tag}</span>
+                <div className="preview-info">
+                  {selectedPhoto.uploaded_by && (
+                    <div className="preview-uploader">
+                      <User className="uploader-icon" />
+                      <span>上传者: {selectedPhoto.uploaded_by}</span>
+                    </div>
+                  )}
+                  {selectedPhoto.tag && (
+                    <div className="preview-tag">
+                      <Tag className="tag-icon" />
+                      <span>{selectedPhoto.tag}</span>
+                    </div>
+                  )}
+                  <div className="preview-date">
+                    <Calendar className="date-icon" />
+                    <span>{formatTime(selectedPhoto.created_at)}</span>
                   </div>
-                )}
-                <div className="preview-date">
-                  <Calendar className="date-icon" />
-                  <span>{formatTime(selectedPhoto.created_at)}</span>
+                  {user && selectedPhoto.user_id === user.id && (
+                    <button
+                      className="preview-delete-btn"
+                      onClick={() => {
+                        setSelectedPhoto(null)
+                        handleDeletePhoto(selectedPhoto)
+                      }}
+                      disabled={deleting === selectedPhoto.id}
+                    >
+                      <Trash2 className="delete-icon" />
+                      删除照片
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>

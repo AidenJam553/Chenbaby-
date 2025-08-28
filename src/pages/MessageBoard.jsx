@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Send, User, Clock, ThumbsUp } from 'lucide-react'
 import { messageAPI } from '../utils/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import './MessageBoard.css'
 
 const MessageBoard = () => {
+  const { user } = useAuth()
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [formData, setFormData] = useState({ name: '', text: '' })
+  const [formData, setFormData] = useState({ text: '' })
 
   // 获取留言列表
   const fetchMessages = async () => {
@@ -26,15 +28,20 @@ const MessageBoard = () => {
   // 提交留言
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.name.trim() || !formData.text.trim()) {
-      alert('请填写昵称和留言内容')
+    if (!formData.text.trim()) {
+      alert('请填写留言内容')
+      return
+    }
+
+    if (!user) {
+      alert('请先登录后再发表留言')
       return
     }
 
     try {
       setSubmitting(true)
-      await messageAPI.addMessage(formData.name.trim(), formData.text.trim())
-      setFormData({ name: '', text: '' })
+      await messageAPI.addMessage(user.display_name || user.username, formData.text.trim())
+      setFormData({ text: '' })
       fetchMessages() // 重新获取留言列表
     } catch (error) {
       console.error('提交留言失败:', error)
@@ -95,20 +102,13 @@ const MessageBoard = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <form onSubmit={handleSubmit} className="message-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="name">昵称</label>
-              <input
-                type="text"
-                id="name"
-                className="input"
-                placeholder="你的昵称"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                maxLength={20}
-                required
-              />
+          {user && (
+            <div className="current-user-info">
+              <User className="user-icon" />
+              <span>当前用户: {user.display_name || user.username}</span>
             </div>
+          )}
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="text">留言内容</label>
               <textarea
@@ -120,13 +120,17 @@ const MessageBoard = () => {
                 maxLength={500}
                 rows={3}
                 required
+                disabled={!user}
               />
+              {!user && (
+                <p className="login-hint">请先登录后再发表留言</p>
+              )}
             </div>
           </div>
           <button
             type="submit"
             className="btn btn-primary submit-btn"
-            disabled={submitting}
+            disabled={submitting || !user}
           >
             <Send className="btn-icon" />
             {submitting ? '发送中...' : '发送留言'}

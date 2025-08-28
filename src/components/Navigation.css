@@ -40,6 +40,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 .nav-link {
@@ -111,6 +113,91 @@
   }
 }
 
+/* 用户信息区域 */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-name {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.settings-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--soft-pink);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--primary-pink);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.settings-button:hover {
+  background: var(--primary-pink);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.settings-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.settings-text {
+  display: none;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--soft-pink);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--primary-pink);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.logout-button:hover {
+  background: var(--primary-pink);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.logout-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.logout-text {
+  display: none;
+}
+
 /* 小屏幕隐藏文字 */
 @media (max-width: 480px) {
   .nav-title {
@@ -120,5 +207,19 @@
   .nav-link {
     min-width: 50px;
     padding: 8px 8px;
+  }
+  
+  .user-name {
+    display: none;
+  }
+  
+  .settings-text,
+  .logout-text {
+    display: none;
+  }
+  
+  .settings-button,
+  .logout-button {
+    padding: 8px;
   }
 }

@@ -1,9 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Heart, MessageCircle, Image, HelpCircle, Home, Gamepad2 } from 'lucide-react'
+import { Heart, MessageCircle, Image, HelpCircle, Home, Gamepad2, LogOut, Settings } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 import './Navigation.css'
 
 const Navigation = () => {
+  const { user, logout, isAuthenticated } = useAuth()
+  
   const navItems = [
     { path: '/', label: '首页', icon: Home },
     { path: '/messages', label: '留言板', icon: MessageCircle },
@@ -11,6 +14,10 @@ const Navigation = () => {
     { path: '/qa', label: '你问我答', icon: HelpCircle },
     { path: '/game', label: '小游戏', icon: Gamepad2 }
   ]
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <nav className="navigation">
@@ -48,6 +55,46 @@ const Navigation = () => {
             )
           })}
         </div>
+
+        {isAuthenticated && (
+          <div className="nav-user">
+            <motion.div
+              className="user-info"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+            >
+              <span className="user-name">欢迎，{user?.display_name || user?.username}</span>
+            </motion.div>
+            
+            <motion.div
+              className="user-actions"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.6 }}
+            >
+              <NavLink
+                to="/settings"
+                className="settings-button"
+                title="用户设置"
+              >
+                <Settings className="settings-icon" />
+                <span className="settings-text">设置</span>
+              </NavLink>
+              
+              <motion.button
+                className="logout-button"
+                onClick={handleLogout}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="退出登录"
+              >
+                <LogOut className="logout-icon" />
+                <span className="logout-text">退出</span>
+              </motion.button>
+            </motion.div>
+          </div>
+        )}
       </div>
     </nav>
   )

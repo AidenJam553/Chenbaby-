@@ -42,6 +42,30 @@
   box-shadow: var(--shadow-sm);
 }
 
+.current-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--soft-pink);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  color: var(--primary-pink);
+  font-weight: 500;
+}
+
+.user-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.login-hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -241,6 +265,11 @@
   .form-row {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+  
+  .current-user-info {
+    padding: 10px 12px;
+    font-size: 14px;
   }
   
   .submit-btn {

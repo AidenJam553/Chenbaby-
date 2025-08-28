@@ -2,7 +2,7 @@
 .game-page {
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: transparent;
   color: white;
   border-radius: 2rem;
   margin: 1rem;
@@ -143,11 +143,11 @@
 /* 更多游戏提示 */
 .coming-soon {
   text-align: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(147, 112, 219, 0.3) 0%, rgba(186, 85, 211, 0.3) 100%);
   padding: 2rem;
   border-radius: 1.5rem;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(147, 112, 219, 0.4);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -266,7 +266,7 @@
 }
 
 .character-select-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.95);
   padding: 3rem;
   border-radius: 2rem;
   text-align: center;
@@ -279,7 +279,7 @@
 .character-select-content h3 {
   font-size: 2rem;
   margin-bottom: 2rem;
-  color: #ffd700;
+  color: #333;
 }
 
 .character-options {
@@ -352,7 +352,7 @@
 }
 
 .complete-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.95);
   padding: 3rem;
   border-radius: 2rem;
   text-align: center;
@@ -372,7 +372,7 @@
 .complete-content h3 {
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  color: #ffd700;
+  color: #333;
 }
 
 .complete-stats {
@@ -382,7 +382,7 @@
 .complete-stats p {
   font-size: 1.1rem;
   margin: 0.5rem 0;
-  opacity: 0.9;
+  color: #333;
 }
 
 .star-rating {
