@@ -334,15 +334,30 @@ export const photoAPI = {
 
     try {
       console.log('尝试从 Supabase 删除照片...')
-      const { error } = await supabase
+      
+      // 先查询照片确保存在
+      const { data: photo, error: selectError } = await supabase
+        .from(TABLES.PHOTOS)
+        .select('*')
+        .eq('id', photoId)
+        .single()
+      
+      if (selectError || !photo) {
+        console.error('照片不存在:', selectError)
+        throw new Error('照片不存在')
+      }
+      
+      console.log('找到照片:', photo)
+      
+      // 删除照片记录
+      const { error: deleteError } = await supabase
         .from(TABLES.PHOTOS)
         .delete()
         .eq('id', photoId)
-        .eq('user_id', userId) // 确保只能删除自己的照片
       
-      if (error) {
-        console.error('Supabase 删除照片错误:', error)
-        throw error
+      if (deleteError) {
+        console.error('Supabase 删除照片错误:', deleteError)
+        throw deleteError
       }
       
       console.log('成功从 Supabase 删除照片')
