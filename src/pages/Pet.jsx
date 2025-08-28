@@ -140,8 +140,8 @@ const Pet = () => {
         transition={{ duration: 0.6 }}
       >
         <Heart className="pet-icon" />
-        <h1>我的小猫咪</h1>
-        <p>点击小猫与它互动，照顾好它哦！</p>
+        <h1>小猫咪叫啥？</h1>
+        <p>功能尚未完善，宝贝敬请期待</p>
       </motion.div>
 
       <div className="pet-main">
