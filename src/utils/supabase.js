@@ -4,8 +4,11 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
 
-// 检查环境变量是否配置 - 强制使用本地模拟数据
-const isConfigured = false // 强制使用本地模拟数据
+// 检查环境变量是否配置
+const isConfigured = supabaseUrl && supabaseAnonKey && 
+  supabaseUrl !== 'https://placeholder.supabase.co' && 
+  supabaseAnonKey !== 'placeholder-key' &&
+  supabaseUrl.includes('supabase.co')
 
 // 添加调试信息
 console.log('Supabase 配置信息:')

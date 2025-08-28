@@ -27,47 +27,36 @@ npm install
 
 ### 2. 配置环境变量
 
-创建 `.env` 文件并添加以下配置：
+复制环境变量模板：
+```bash
+cp env.example .env
+```
+
+编辑 `.env` 文件并添加您的Supabase配置：
 
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 3. 设置 Supabase
 
 1. 在 [Supabase](https://supabase.com) 创建新项目
-2. 在 SQL Editor 中运行以下 SQL 创建表：
+2. 在 SQL Editor 中运行优化后的数据库脚本：
 
 ```sql
--- 消息表
-CREATE TABLE messages (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
-  text TEXT NOT NULL,
-  likes INTEGER DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 照片表
-CREATE TABLE photos (
-  id SERIAL PRIMARY KEY,
-  url TEXT NOT NULL,
-  tag VARCHAR(100),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 问答表
-CREATE TABLE qa_pairs (
-  id SERIAL PRIMARY KEY,
-  q TEXT NOT NULL,
-  a TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- 运行完整的数据库设置脚本
+\i supabase_setup.sql
 ```
 
-3. 创建存储桶 `photos` 用于存储图片
-4. 设置存储桶权限为公开读取
+3. 运行存储策略配置：
+
+```sql
+-- 运行存储桶和策略配置
+\i storage_policies.sql
+```
+
+**📚 详细配置指南**：参考 `DATABASE_CONNECTION_GUIDE.md`
 
 ### 4. 启动开发服务器
 
