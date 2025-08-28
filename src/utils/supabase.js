@@ -229,9 +229,24 @@ export const messageAPI = {
 
     try {
       console.log('尝试在 Supabase 中点赞留言...')
+      
+      // 先获取当前的点赞数
+      const { data: currentMessage, error: selectError } = await supabase
+        .from(TABLES.MESSAGES)
+        .select('likes')
+        .eq('id', id)
+        .single()
+      
+      if (selectError) {
+        console.error('获取留言失败:', selectError)
+        throw selectError
+      }
+      
+      // 更新点赞数
+      const newLikes = (currentMessage.likes || 0) + 1
       const { data, error } = await supabase
         .from(TABLES.MESSAGES)
-        .update({ likes: supabase.sql`likes + 1` })
+        .update({ likes: newLikes })
         .eq('id', id)
         .select()
       
