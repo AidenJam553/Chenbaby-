@@ -40,7 +40,7 @@ const Login = () => {
         className="login-card"
       >
         <div className="login-header">
-          <h1>💕 欢迎回来</h1>
+          <h1>💕 欢迎回家</h1>
           <p>请输入您的用户名和密码</p>
         </div>
 
@@ -92,10 +92,7 @@ const Login = () => {
           </motion.button>
         </form>
 
-        <div className="login-footer">
-          <p>默认账号：chenchen / Jacob</p>
-          <p>密码可在设置中修改</p>
-        </div>
+
       </motion.div>
     </div>
   )

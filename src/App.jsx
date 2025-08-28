@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Navigation from './components/Navigation'
+import WelcomeModal from './components/WelcomeModal'
 import Home from './pages/Home'
 import MessageBoard from './pages/MessageBoard'
 import PhotoAlbum from './pages/PhotoAlbum'
@@ -31,6 +33,32 @@ const ProtectedRoute = ({ children }) => {
 
 // 主应用组件
 const AppContent = () => {
+  const { isAuthenticated, isLoading } = useAuth()
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [hasShownWelcomeModal, setHasShownWelcomeModal] = useState(false)
+
+  useEffect(() => {
+    // 检查是否应该显示欢迎弹窗
+    if (isAuthenticated && !isLoading && !hasShownWelcomeModal) {
+      const hideWelcomeModal = localStorage.getItem('hideWelcomeModal')
+      if (!hideWelcomeModal) {
+        // 延迟1秒显示弹窗，让页面先完成加载
+        const timer = setTimeout(() => {
+          setShowWelcomeModal(true)
+          setHasShownWelcomeModal(true)
+        }, 1000)
+
+        return () => clearTimeout(timer)
+      } else {
+        setHasShownWelcomeModal(true)
+      }
+    }
+  }, [isAuthenticated, isLoading, hasShownWelcomeModal])
+
+  const handleCloseWelcomeModal = () => {
+    setShowWelcomeModal(false)
+  }
+
   return (
     <div className="app">
       <motion.div
@@ -83,6 +111,12 @@ const AppContent = () => {
           </Routes>
         </main>
       </motion.div>
+
+      {/* 欢迎弹窗 */}
+      <WelcomeModal 
+        show={showWelcomeModal} 
+        onClose={handleCloseWelcomeModal} 
+      />
     </div>
   )
 }

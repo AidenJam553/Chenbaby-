@@ -7,6 +7,7 @@
   padding: 20px;
   position: relative;
   overflow: hidden;
+  border-radius: 20px;
 }
 
 .login-container::before {
@@ -130,18 +131,7 @@
   transform: none;
 }
 
-.login-footer {
-  margin-top: 30px;
-  text-align: center;
-  padding-top: 20px;
-  border-top: 1px solid #e1e5e9;
-}
 
-.login-footer p {
-  color: #666;
-  font-size: 0.85rem;
-  margin: 5px 0;
-}
 
 /* 响应式设计 */
 @media (max-width: 480px) {

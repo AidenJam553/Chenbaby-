@@ -186,7 +186,7 @@ const QAndA = () => {
           <HelpCircle className="title-icon" />
           你问我答
         </h1>
-        <p className="page-subtitle">互动问答，测试默契度 💕🎯</p>
+        <p className="page-subtitle">想要更多的了解宝贝 💕🎯</p>
       </motion.div>
 
       {/* 标签页切换 */}
