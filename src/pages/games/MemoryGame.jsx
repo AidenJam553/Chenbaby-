@@ -180,6 +180,12 @@ const MemoryGame = ({ onBack }) => {
     loadBestScore()
   }, [user])
 
+  // 调试信息
+  useEffect(() => {
+    console.log('记忆游戏 - 卡片数量:', cards.length)
+    console.log('记忆游戏 - 卡片数据:', cards)
+  }, [cards])
+
   return (
     <div className="memory-game">
       {/* 返回按钮 */}
@@ -215,7 +221,7 @@ const MemoryGame = ({ onBack }) => {
 
       {/* 游戏统计 */}
       <motion.div
-        className="game-stats"
+        className="game-stats mobile-optimized"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}

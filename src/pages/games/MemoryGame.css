@@ -21,6 +21,10 @@
   transition: all 0.3s ease;
   margin-bottom: 2rem;
   backdrop-filter: blur(10px);
+  /* 优化移动端触摸 */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
 }
 
 .back-btn:hover {
@@ -83,6 +87,15 @@
   flex-wrap: wrap;
 }
 
+/* 移动端优化的统计布局 */
+.game-stats.mobile-optimized {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
 .stat-item {
   display: flex;
   flex-direction: column;
@@ -104,6 +117,36 @@
 .stat-item.player-info {
   background: rgba(255, 105, 180, 0.2);
   border-color: rgba(255, 105, 180, 0.3);
+}
+
+/* 移动端统计卡片特殊样式 */
+@media (max-width: 768px) {
+  .stat-item.best-score .stat-icon,
+  .stat-item.player-info .stat-icon {
+    color: inherit !important;
+  }
+  
+  .stat-item.best-score .stat-value {
+    color: #ffd700 !important;
+  }
+  
+  .stat-item.player-info .stat-value {
+    color: #ff69b4 !important;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem !important;
+    opacity: 0.85 !important;
+  }
+  
+  .stat-value {
+    font-size: 1.1rem !important;
+  }
+  
+  .stat-icon {
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+  }
 }
 
 .stat-icon {
@@ -138,6 +181,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  /* 优化移动端触摸 */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 48px;
+  min-width: 120px;
 }
 
 .start-btn {
@@ -326,6 +374,7 @@
   gap: 1rem;
   max-width: 600px;
   width: 100%;
+  min-height: auto;
 }
 
 /* 卡片样式 */
@@ -335,6 +384,12 @@
   perspective: 1000px;
   border-radius: 1rem;
   overflow: hidden;
+  /* 优化移动端触摸 */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 .card-inner {
@@ -437,24 +492,42 @@
 @media (max-width: 768px) {
   .memory-game {
     padding: 1rem;
+    margin: 0.5rem;
   }
   
   .page-title {
     font-size: 2rem;
   }
   
-  .game-stats {
-    gap: 1rem;
+  .game-stats,
+  .game-stats.mobile-optimized {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
+    max-width: 350px !important;
+    margin: 0 auto 2rem auto !important;
+    flex-wrap: unset !important;
+    justify-content: unset !important;
   }
   
   .stat-item {
-    padding: 0.8rem 1rem;
-    min-width: 100px;
+    padding: 0.8rem 0.6rem !important;
+    min-width: auto !important;
+    min-height: 80px !important;
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
   }
   
   .cards-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.8rem;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.6rem;
+    max-width: 100% !important;
+    width: calc(100vw - 2rem) !important;
+    display: grid !important;
   }
   
   .card-symbol {
@@ -478,24 +551,166 @@
   .character-btn {
     min-width: 200px;
   }
+  
+  .game-instructions {
+    padding: 1.5rem;
+    margin: 0 0.5rem;
+  }
+  
+  .back-btn {
+    padding: 0.6rem 1.2rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
   .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.6rem;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.4rem;
+    max-width: 100% !important;
+    width: calc(100vw - 2rem) !important;
+    display: grid !important;
   }
   
   .card-symbol {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
   
-  .game-stats {
-    flex-direction: column;
-    align-items: center;
+  .game-stats,
+  .game-stats.mobile-optimized {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 0.4rem !important;
+    max-width: 280px !important;
+    margin: 0 auto 1.5rem auto !important;
+    flex-wrap: unset !important;
+    justify-content: unset !important;
   }
   
   .stat-item {
-    width: 200px;
+    width: auto !important;
+    padding: 0.6rem 0.4rem !important;
+    min-width: auto !important;
+    min-height: 70px !important;
+    flex-direction: column !important;
+    gap: 0.3rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem !important;
+    opacity: 0.9 !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+  
+  .stat-value {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+  
+  .stat-icon {
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .memory-game {
+    padding: 0.5rem;
+    margin: 0.5rem;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .start-btn, .restart-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .game-controls {
+    margin-bottom: 1rem;
+  }
+  
+  .game-instructions {
+    padding: 1rem;
+    margin: 0;
+  }
+  
+  .game-instructions h3 {
+    font-size: 1.2rem;
+  }
+  
+  .game-instructions li {
+    font-size: 0.9rem;
+    padding: 0.4rem 0;
+  }
+}
+
+/* 超小屏幕特殊处理 */
+@media (max-width: 375px) {
+  .cards-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.3rem !important;
+    width: calc(100vw - 1rem) !important;
+    max-width: none !important;
+  }
+  
+  .card-symbol {
+    font-size: 1.2rem !important;
+  }
+  
+  .memory-game {
+    padding: 0.5rem !important;
+    margin: 0.25rem !important;
+  }
+  
+  .game-stats,
+  .game-stats.mobile-optimized {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: 1fr !important;
+    gap: 0.3rem !important;
+    max-width: 100% !important;
+    margin: 0 auto 1rem auto !important;
+    flex-wrap: unset !important;
+    justify-content: unset !important;
+  }
+  
+  .stat-item {
+    padding: 0.4rem 0.2rem !important;
+    gap: 0.2rem !important;
+    min-height: 60px !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  
+  .stat-label {
+    font-size: 0.6rem !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+  
+  .stat-value {
+    font-size: 0.8rem !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+  
+  .stat-icon {
+    width: 0.9rem !important;
+    height: 0.9rem !important;
+    flex-shrink: 0 !important;
   }
 }
