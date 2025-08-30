@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Send, User, Clock, ThumbsUp } from 'lucide-react'
+import { Heart, Send, User, Clock, ThumbsUp, MessageCircle, Reply } from 'lucide-react'
 import { messageAPI } from '../utils/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import './MessageBoard.css'
@@ -11,6 +11,9 @@ const MessageBoard = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({ text: '' })
+  const [replyingTo, setReplyingTo] = useState(null)
+  const [replyFormData, setReplyFormData] = useState({ text: '' })
+  const [expandedReplies, setExpandedReplies] = useState(new Set())
 
   // 获取留言列表
   const fetchMessages = async () => {
@@ -49,6 +52,67 @@ const MessageBoard = () => {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  // 提交回复
+  const handleReplySubmit = async (e, messageId) => {
+    e.preventDefault()
+    if (!replyFormData.text.trim()) {
+      alert('请填写回复内容')
+      return
+    }
+
+    if (!user) {
+      alert('请先登录后再发表回复')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      await messageAPI.addReply(user.display_name || user.username, replyFormData.text.trim(), messageId)
+      setReplyFormData({ text: '' })
+      setReplyingTo(null)
+      fetchMessages() // 重新获取留言列表
+    } catch (error) {
+      console.error('提交回复失败:', error)
+      alert('提交回复失败，请重试')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // 开始回复
+  const startReply = (messageId) => {
+    setReplyingTo(messageId)
+    setReplyFormData({ text: '' })
+  }
+
+  // 取消回复
+  const cancelReply = () => {
+    setReplyingTo(null)
+    setReplyFormData({ text: '' })
+  }
+
+  // 切换回复显示
+  const toggleReplies = (messageId) => {
+    const newExpanded = new Set(expandedReplies)
+    if (newExpanded.has(messageId)) {
+      newExpanded.delete(messageId)
+    } else {
+      newExpanded.add(messageId)
+    }
+    setExpandedReplies(newExpanded)
+  }
+
+  // 获取主留言（非回复）
+  const getMainMessages = () => {
+    return messages.filter(message => !message.reply_to)
+  }
+
+  // 获取指定留言的回复
+  const getMessageReplies = (messageId) => {
+    return messages.filter(message => message.reply_to === messageId)
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
   }
 
   // 点赞留言
@@ -152,7 +216,7 @@ const MessageBoard = () => {
             <div className="loading-spinner"></div>
             <p>加载中...</p>
           </div>
-        ) : messages.length === 0 ? (
+        ) : getMainMessages().length === 0 ? (
           <div className="empty-state">
             <Heart className="empty-icon" />
             <p>还没有留言，快来留下第一条吧！</p>
@@ -160,41 +224,161 @@ const MessageBoard = () => {
         ) : (
           <div className="messages-list">
             <AnimatePresence>
-              {messages.map((message, index) => (
-                <motion.div
-                  key={message.id}
-                  className="message-card"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <div className="message-header">
-                    <div className="message-author">
-                      <User className="author-icon" />
-                      <span className="author-name">{message.name}</span>
+              {getMainMessages().map((message, index) => {
+                const replies = getMessageReplies(message.id)
+                const hasReplies = replies.length > 0
+                const isExpanded = expandedReplies.has(message.id)
+                
+                return (
+                  <motion.div
+                    key={message.id}
+                    className="message-card"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <div className="message-header">
+                      <div className="message-author">
+                        <User className="author-icon" />
+                        <span className="author-name">{message.name}</span>
+                      </div>
+                      <div className="message-time">
+                        <Clock className="time-icon" />
+                        <span>{formatTime(message.created_at)}</span>
+                      </div>
                     </div>
-                    <div className="message-time">
-                      <Clock className="time-icon" />
-                      <span>{formatTime(message.created_at)}</span>
+                    
+                    <div className="message-content">
+                      {message.text}
                     </div>
-                  </div>
-                  
-                  <div className="message-content">
-                    {message.text}
-                  </div>
-                  
-                  <div className="message-footer">
-                    <button
-                      className="like-btn"
-                      onClick={() => handleLike(message.id)}
-                    >
-                      <ThumbsUp className="like-icon" />
-                      <span>{message.likes || 0}</span>
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                    
+                    <div className="message-footer">
+                      <div className="message-actions">
+                        <button
+                          className="like-btn"
+                          onClick={() => handleLike(message.id)}
+                        >
+                          <ThumbsUp className="like-icon" />
+                          <span>{message.likes || 0}</span>
+                        </button>
+                        
+                        <button
+                          className="reply-btn"
+                          onClick={() => startReply(message.id)}
+                          disabled={!user}
+                        >
+                          <Reply className="reply-icon" />
+                          <span className="btn-text">回复</span>
+                        </button>
+                        
+                        {hasReplies && (
+                          <button
+                            className="toggle-replies-btn"
+                            onClick={() => toggleReplies(message.id)}
+                          >
+                            <MessageCircle className="replies-icon" />
+                            <span className="btn-text">
+                              <span className="mobile-short">{isExpanded ? '收起' : replies.length}</span>
+                              <span className="desktop-full">{isExpanded ? '收起' : '查看'} {replies.length} 条回复</span>
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 回复表单 */}
+                    {replyingTo === message.id && (
+                      <motion.div
+                        className="reply-form-container"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <form onSubmit={(e) => handleReplySubmit(e, message.id)} className="reply-form">
+                          <div className="form-group">
+                            <textarea
+                              className="input reply-input"
+                              placeholder="写下你的回复..."
+                              value={replyFormData.text}
+                              onChange={(e) => setReplyFormData({ text: e.target.value })}
+                              maxLength={500}
+                              rows={2}
+                              required
+                            />
+                          </div>
+                          <div className="reply-form-actions">
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={cancelReply}
+                            >
+                              取消
+                            </button>
+                            <button
+                              type="submit"
+                              className="btn btn-primary"
+                              disabled={submitting || !replyFormData.text.trim()}
+                            >
+                              <Send className="btn-icon" />
+                              {submitting ? '发送中...' : '发送回复'}
+                            </button>
+                          </div>
+                        </form>
+                      </motion.div>
+                    )}
+
+                    {/* 回复列表 */}
+                    {hasReplies && isExpanded && (
+                      <motion.div
+                        className="replies-container"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="replies-list">
+                          {replies.map((reply, replyIndex) => (
+                            <motion.div
+                              key={reply.id}
+                              className="reply-card"
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: replyIndex * 0.05 }}
+                            >
+                              <div className="reply-header">
+                                <div className="reply-author">
+                                  <User className="author-icon" />
+                                  <span className="author-name">{reply.name}</span>
+                                </div>
+                                <div className="reply-time">
+                                  <Clock className="time-icon" />
+                                  <span>{formatTime(reply.created_at)}</span>
+                                </div>
+                              </div>
+                              
+                              <div className="reply-content">
+                                {reply.text}
+                              </div>
+                              
+                              <div className="reply-footer">
+                                <button
+                                  className="like-btn small"
+                                  onClick={() => handleLike(reply.id)}
+                                >
+                                  <ThumbsUp className="like-icon" />
+                                  <span>{reply.likes || 0}</span>
+                                </button>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )
+              })}
             </AnimatePresence>
           </div>
         )}

@@ -286,6 +286,12 @@
   justify-content: flex-end;
 }
 
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .like-btn {
   display: flex;
   align-items: center;
@@ -305,9 +311,232 @@
   transform: scale(1.05);
 }
 
+.like-btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.like-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .like-icon {
   width: 16px;
   height: 16px;
+}
+
+.reply-btn, .toggle-replies-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.reply-btn:hover, .toggle-replies-btn:hover {
+  background: var(--soft-pink);
+  color: var(--primary-pink);
+  border-color: var(--primary-pink);
+}
+
+.reply-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reply-icon, .replies-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* 桌面端文字显示控制 */
+.mobile-short {
+  display: none;
+}
+
+.desktop-full {
+  display: inline;
+}
+
+/* 回复表单样式 */
+.reply-form-container {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.reply-form {
+  background: #fafafa;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.reply-input {
+  min-height: 80px !important;
+  resize: vertical;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  width: 100%;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.reply-input:focus {
+  outline: none;
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.1);
+}
+
+.reply-input::placeholder {
+  color: #a0a0a0;
+  font-style: italic;
+}
+
+.reply-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-pink) 0%, #ff8fa3 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--soft-pink);
+  color: var(--primary-pink);
+  border-color: var(--primary-pink);
+}
+
+/* 回复列表样式 */
+.replies-container {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #fafafe 0%, #ffffff 100%);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.replies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reply-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 107, 157, 0.1);
+  position: relative;
+  margin-left: 20px;
+}
+
+.reply-card::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 2px;
+  background: var(--primary-pink);
+  border-radius: 1px;
+}
+
+.reply-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.reply-author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reply-author .author-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.reply-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.reply-content {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.reply-footer {
+  display: flex;
+  justify-content: flex-end;
 }
 
 @keyframes spin {
@@ -375,5 +604,101 @@
   
   .message-time {
     font-size: 11px;
+  }
+
+  /* 移动端回复功能样式 */
+  .message-actions {
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .like-btn {
+    margin-left: auto;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .reply-btn, .toggle-replies-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    min-width: auto;
+    flex-shrink: 0;
+    border-radius: 12px;
+  }
+
+  .reply-btn .btn-text,
+  .toggle-replies-btn .btn-text {
+    margin-left: 2px;
+  }
+
+  .reply-btn .reply-icon, 
+  .toggle-replies-btn .replies-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* 移动端显示简化文字 */
+  .mobile-short {
+    display: inline;
+  }
+  
+  .desktop-full {
+    display: none;
+  }
+
+  /* 紧凑的按钮文字 */
+  .toggle-replies-btn .btn-text {
+    white-space: nowrap;
+  }
+
+  .reply-form {
+    padding: 12px;
+  }
+
+  .reply-input {
+    min-height: 70px !important;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .reply-form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    justify-content: center;
+  }
+
+  .reply-card {
+    padding: 12px;
+    margin-left: 16px;
+    font-size: 13px;
+  }
+
+  .reply-card::before {
+    left: -16px;
+    width: 10px;
+  }
+
+  .replies-container {
+    padding: 16px 12px;
+  }
+
+  .reply-author .author-name {
+    font-size: 13px;
+  }
+
+  .reply-time {
+    font-size: 11px;
+  }
+
+  .reply-content {
+    font-size: 13px;
   }
 }

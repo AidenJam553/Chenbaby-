@@ -125,6 +125,40 @@ INSERT INTO messages (name, text, likes, user_id, emoji_reactions) VALUES
   ('琛宝', '七夕节快乐！愿我们永远幸福💫', 8, 1, '{"💫": 4, "💕": 4}')
 ON CONFLICT DO NOTHING;
 
+-- 插入示例回复数据（需要在主留言创建后执行）
+DO $$
+DECLARE
+    welcome_msg_id BIGINT;
+    warm_msg_id BIGINT;
+    festival_msg_id BIGINT;
+BEGIN
+    -- 获取主留言的ID
+    SELECT id INTO welcome_msg_id FROM messages WHERE text LIKE '欢迎来到我们的温馨小屋！%' LIMIT 1;
+    SELECT id INTO warm_msg_id FROM messages WHERE text LIKE '这里真是一个温暖的地方呢～%' LIMIT 1;
+    SELECT id INTO festival_msg_id FROM messages WHERE text LIKE '七夕节快乐！%' LIMIT 1;
+    
+    -- 插入回复数据
+    IF welcome_msg_id IS NOT NULL THEN
+        INSERT INTO messages (name, text, likes, user_id, reply_to, emoji_reactions) VALUES 
+            ('涵宝', '谢谢琛宝的欢迎！我也很喜欢这里💖', 2, 2, welcome_msg_id, '{"💖": 2}'),
+            ('琛宝', '有你在的地方就是最温馨的家～', 4, 1, welcome_msg_id, '{"🏠": 2, "💕": 2}')
+        ON CONFLICT DO NOTHING;
+    END IF;
+    
+    IF warm_msg_id IS NOT NULL THEN
+        INSERT INTO messages (name, text, likes, user_id, reply_to, emoji_reactions) VALUES 
+            ('琛宝', '我们一起创造更多美好的回忆吧！✨', 3, 1, warm_msg_id, '{"✨": 3}')
+        ON CONFLICT DO NOTHING;
+    END IF;
+    
+    IF festival_msg_id IS NOT NULL THEN
+        INSERT INTO messages (name, text, likes, user_id, reply_to, emoji_reactions) VALUES 
+            ('涵宝', '七夕快乐！愿我们的爱情天长地久🌹', 6, 2, festival_msg_id, '{"🌹": 4, "💕": 2}'),
+            ('琛宝', '每天和你在一起都像过节一样开心😊', 3, 1, festival_msg_id, '{"😊": 3}')
+        ON CONFLICT DO NOTHING;
+    END IF;
+END $$;
+
 -- 插入示例照片数据
 INSERT INTO photos (url, tag, description, uploaded_by, user_id, is_favorite) VALUES 
   ('https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&h=600&fit=crop', '温馨时光', '和你在一起的每一刻都很珍贵', '琛宝', 1, true),
@@ -291,7 +325,11 @@ LEFT JOIN (
   GROUP BY user_id
 ) photos ON u.id = photos.user_id
 LEFT JOIN (
-  SELECT user_id, COUNT(*) as message_count
+  SELECT 
+    user_id, 
+    COUNT(*) as message_count,
+    COUNT(CASE WHEN reply_to IS NULL THEN 1 END) as main_messages,
+    COUNT(CASE WHEN reply_to IS NOT NULL THEN 1 END) as replies
   FROM messages
   WHERE user_id IS NOT NULL
   GROUP BY user_id
@@ -331,6 +369,51 @@ FROM game_records
 GROUP BY player_name, game_type
 ORDER BY game_type, rank;
 
+-- 创建留言板统计视图
+CREATE OR REPLACE VIEW message_board_stats AS
+SELECT 
+  DATE_TRUNC('day', created_at) as message_date,
+  COUNT(*) as total_messages,
+  COUNT(CASE WHEN reply_to IS NULL THEN 1 END) as main_messages,
+  COUNT(CASE WHEN reply_to IS NOT NULL THEN 1 END) as replies,
+  SUM(likes) as total_likes,
+  AVG(likes) as avg_likes,
+  COUNT(DISTINCT name) as unique_contributors
+FROM messages
+GROUP BY DATE_TRUNC('day', created_at)
+ORDER BY message_date DESC;
+
+-- 创建热门留言视图（包含回复统计）
+CREATE OR REPLACE VIEW popular_messages AS
+SELECT 
+  m.id,
+  m.name,
+  m.text,
+  m.likes,
+  m.emoji_reactions,
+  m.created_at,
+  COALESCE(reply_stats.reply_count, 0) as reply_count,
+  reply_stats.latest_reply_at,
+  CASE 
+    WHEN m.reply_to IS NULL THEN 'main'
+    ELSE 'reply'
+  END as message_type,
+  -- 热度计算：点赞数 + 回复数 * 0.5 + 时间衰减因子
+  (m.likes + COALESCE(reply_stats.reply_count, 0) * 0.5 + 
+   EXTRACT(EPOCH FROM (NOW() - m.created_at)) / 3600 * -0.1) as popularity_score
+FROM messages m
+LEFT JOIN (
+  SELECT 
+    reply_to,
+    COUNT(*) as reply_count,
+    MAX(created_at) as latest_reply_at
+  FROM messages 
+  WHERE reply_to IS NOT NULL 
+  GROUP BY reply_to
+) reply_stats ON m.id = reply_stats.reply_to
+WHERE m.reply_to IS NULL -- 只显示主留言
+ORDER BY popularity_score DESC;
+
 -- 创建数据库函数：清理过期会话
 CREATE OR REPLACE FUNCTION cleanup_expired_sessions()
 RETURNS INTEGER AS $$
@@ -359,6 +442,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION get_user_activity_stats(username_param TEXT)
 RETURNS TABLE(
   total_messages INTEGER,
+  total_replies INTEGER,
   total_photos INTEGER,
   total_questions_asked INTEGER,
   total_questions_answered INTEGER,
@@ -368,19 +452,107 @@ RETURNS TABLE(
 BEGIN
   RETURN QUERY
   SELECT 
-    COALESCE((SELECT COUNT(*)::INTEGER FROM messages m JOIN users u ON m.user_id = u.id WHERE u.username = username_param), 0),
+    COALESCE((SELECT COUNT(*)::INTEGER FROM messages m JOIN users u ON m.user_id = u.id WHERE u.username = username_param AND m.reply_to IS NULL), 0),
+    COALESCE((SELECT COUNT(*)::INTEGER FROM messages m JOIN users u ON m.user_id = u.id WHERE u.username = username_param AND m.reply_to IS NOT NULL), 0),
     COALESCE((SELECT COUNT(*)::INTEGER FROM photos p JOIN users u ON p.user_id = u.id WHERE u.username = username_param), 0),
     COALESCE((SELECT COUNT(*)::INTEGER FROM questions WHERE created_by = username_param), 0),
     COALESCE((SELECT COUNT(*)::INTEGER FROM questions WHERE answered_by = username_param), 0),
     COALESCE((SELECT COUNT(*)::INTEGER FROM game_records g JOIN users u ON g.user_id = u.id WHERE u.username = username_param), 0),
     COALESCE((
       SELECT (
-        COALESCE((SELECT COUNT(*) FROM messages m JOIN users u ON m.user_id = u.id WHERE u.username = username_param), 0) * 2 +
+        COALESCE((SELECT COUNT(*) FROM messages m JOIN users u ON m.user_id = u.id WHERE u.username = username_param AND m.reply_to IS NULL), 0) * 2 +
+        COALESCE((SELECT COUNT(*) FROM messages m JOIN users u ON m.user_id = u.id WHERE u.username = username_param AND m.reply_to IS NOT NULL), 0) * 1 +
         COALESCE((SELECT COUNT(*) FROM photos p JOIN users u ON p.user_id = u.id WHERE u.username = username_param), 0) * 3 +
         COALESCE((SELECT COUNT(*) FROM questions WHERE created_by = username_param), 0) * 5 +
         COALESCE((SELECT COUNT(*) FROM questions WHERE answered_by = username_param), 0) * 3 +
         COALESCE((SELECT COUNT(*) FROM game_records g JOIN users u ON g.user_id = u.id WHERE u.username = username_param), 0) * 1
       )::INTEGER
     ), 0);
+END;
+$$ LANGUAGE plpgsql;
+
+-- 创建数据库函数：获取留言及其回复数量
+CREATE OR REPLACE FUNCTION get_message_with_reply_count(message_id_param BIGINT)
+RETURNS TABLE(
+  message_id BIGINT,
+  reply_count INTEGER,
+  latest_reply_at TIMESTAMP WITH TIME ZONE
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    message_id_param,
+    COALESCE((SELECT COUNT(*)::INTEGER FROM messages WHERE reply_to = message_id_param), 0),
+    (SELECT MAX(created_at) FROM messages WHERE reply_to = message_id_param);
+END;
+$$ LANGUAGE plpgsql;
+
+-- 创建数据库函数：获取完整的留言树（包括回复）
+CREATE OR REPLACE FUNCTION get_message_thread(message_id_param BIGINT)
+RETURNS TABLE(
+  id BIGINT,
+  name TEXT,
+  text TEXT,
+  likes INTEGER,
+  user_id BIGINT,
+  reply_to BIGINT,
+  is_pinned BOOLEAN,
+  emoji_reactions JSONB,
+  created_at TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE,
+  level INTEGER
+) AS $$
+BEGIN
+  RETURN QUERY
+  WITH RECURSIVE message_tree AS (
+    -- 根留言
+    SELECT 
+      m.id, m.name, m.text, m.likes, m.user_id, m.reply_to, 
+      m.is_pinned, m.emoji_reactions, m.created_at, m.updated_at,
+      0 as level
+    FROM messages m
+    WHERE m.id = message_id_param
+    
+    UNION ALL
+    
+    -- 回复
+    SELECT 
+      m.id, m.name, m.text, m.likes, m.user_id, m.reply_to,
+      m.is_pinned, m.emoji_reactions, m.created_at, m.updated_at,
+      mt.level + 1
+    FROM messages m
+    INNER JOIN message_tree mt ON m.reply_to = mt.id
+    WHERE mt.level < 10 -- 防止无限递归，最多10层
+  )
+  SELECT * FROM message_tree ORDER BY level, created_at;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 创建数据库函数：获取热门回复
+CREATE OR REPLACE FUNCTION get_popular_replies(limit_param INTEGER DEFAULT 10)
+RETURNS TABLE(
+  id BIGINT,
+  name TEXT,
+  text TEXT,
+  likes INTEGER,
+  reply_to BIGINT,
+  parent_text TEXT,
+  created_at TIMESTAMP WITH TIME ZONE
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    r.id,
+    r.name,
+    r.text,
+    r.likes,
+    r.reply_to,
+    p.text as parent_text,
+    r.created_at
+  FROM messages r
+  JOIN messages p ON r.reply_to = p.id
+  WHERE r.reply_to IS NOT NULL
+  ORDER BY r.likes DESC, r.created_at DESC
+  LIMIT limit_param;
 END;
 $$ LANGUAGE plpgsql;

@@ -152,12 +152,23 @@ const mockUsers = [
 
 // 消息相关操作
 export const messageAPI = {
-  // 获取所有消息
+  // 获取所有消息（包含回复）
   async getMessages() {
     if (!isConfigured) {
       console.log('使用模拟数据：获取留言')
       // 模拟网络延迟
       await new Promise(resolve => setTimeout(resolve, 500))
+      // 为模拟数据添加回复示例
+      if (mockMessages.length > 0 && !mockMessages.some(m => m.reply_to)) {
+        mockMessages.push({
+          id: Date.now() + 1,
+          name: '涵宝',
+          text: '谢谢琛宝的欢迎！我也很喜欢这里💖',
+          likes: 2,
+          reply_to: mockMessages[0].id,
+          created_at: new Date(Date.now() - 1800000).toISOString()
+        })
+      }
       return mockMessages
     }
     
@@ -182,7 +193,7 @@ export const messageAPI = {
   },
 
   // 添加新消息
-  async addMessage(name, text) {
+  async addMessage(name, text, replyTo = null) {
     if (!isConfigured) {
       console.log('使用模拟数据：添加留言')
       const newMessage = {
@@ -190,6 +201,7 @@ export const messageAPI = {
         name,
         text,
         likes: 0,
+        reply_to: replyTo,
         created_at: new Date().toISOString()
       }
       mockMessages.unshift(newMessage)
@@ -198,9 +210,14 @@ export const messageAPI = {
 
     try {
       console.log('尝试添加留言到 Supabase...')
+      const messageData = { name, text }
+      if (replyTo) {
+        messageData.reply_to = replyTo
+      }
+      
       const { data, error } = await supabase
         .from(TABLES.MESSAGES)
-        .insert([{ name, text }])
+        .insert([messageData])
         .select()
       
       if (error) {
@@ -213,6 +230,40 @@ export const messageAPI = {
     } catch (error) {
       console.error('添加留言失败:', error)
       throw error
+    }
+  },
+
+  // 添加回复
+  async addReply(name, text, parentMessageId) {
+    return this.addMessage(name, text, parentMessageId)
+  },
+
+  // 获取留言的回复
+  async getReplies(messageId) {
+    if (!isConfigured) {
+      console.log('使用模拟数据：获取回复')
+      const replies = mockMessages.filter(m => m.reply_to === messageId)
+      return replies.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    }
+
+    try {
+      console.log('尝试从 Supabase 获取回复...')
+      const { data, error } = await supabase
+        .from(TABLES.MESSAGES)
+        .select('*')
+        .eq('reply_to', messageId)
+        .order('created_at', { ascending: true })
+      
+      if (error) {
+        console.error('Supabase 获取回复错误:', error)
+        throw error
+      }
+      
+      console.log('成功从 Supabase 获取回复:', data)
+      return data
+    } catch (error) {
+      console.error('获取回复失败:', error)
+      return []
     }
   },
 
